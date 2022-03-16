@@ -32,6 +32,10 @@ namespace dotnetCoreConsole
             {
                 return new WindowsSystemInfo();
             }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                return new LinuxSystemInfo();
+            }
             else
             {
                 throw new Exception("Программа не смогла определить операционную систему.");

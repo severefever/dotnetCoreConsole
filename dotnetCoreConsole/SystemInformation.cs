@@ -45,7 +45,7 @@ namespace dotnetCoreConsole
             _specialOS.CPUTemperatureProbe();
         }
         //
-        // Cross platform methods
+        // Crossplatform methods
         //
         public static void GetDiskInfo()
         {
@@ -230,10 +230,34 @@ namespace dotnetCoreConsole
                     }
                 }
             }
+            searcher.Dispose();
         }
         public void CPUTemperatureProbe()
         {
-            
+            // Пусто.
+        }
+    }
+    class LinuxSystemInfo : IOperatingSystemSpecial
+    {
+        public void USBPortsInfo()
+        {
+            // Пусто.
+        }
+        public void MemoryInfo()
+        {
+            // Пусто.
+        }
+        public void CPUInfo()
+        {
+            // Пусто.
+        }
+        public void DrivesTemperatureProbe()
+        {
+            // Пусто.
+        }
+        public void CPUTemperatureProbe()
+        {
+            // Пусто.
         }
     }
 }
