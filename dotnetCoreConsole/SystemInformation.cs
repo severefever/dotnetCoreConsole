@@ -50,8 +50,25 @@ namespace dotnetCoreConsole
         public static void GetDiskInfo()
         {
             DriveInfo[] allDrives = DriveInfo.GetDrives();
+            string[] ignoringDriveFormats = new string[] { "pstorefs", "squashfs", "msdos" };
+            bool isSkip = false;
             foreach (DriveInfo drive in allDrives)
             {
+                if (drive.DriveType != DriveType.Fixed && drive.DriveType != DriveType.Removable && drive.DriveType != DriveType.Network)
+                    continue;
+                foreach (string format in ignoringDriveFormats)
+                {
+                    if (drive.DriveFormat.Equals(format))
+                    {
+                        isSkip = true;
+                        break;
+                    }
+                }
+                if (isSkip == true)
+                {
+                    isSkip = false;
+                    continue;
+                }
                 Console.WriteLine("Диск:      {0}", drive.Name);
                 Console.WriteLine("Тип диска: {0}", drive.DriveType);
                 if (drive.IsReady == true)
@@ -250,6 +267,17 @@ namespace dotnetCoreConsole
         public void CPUInfo()
         {
             // Пусто.
+            ProcessStartInfo procStartInfo = new ProcessStartInfo("/bin/sh", "-c 'getconf _NPROCESSORS_ONLN'");
+            procStartInfo.RedirectStandardOutput = true;
+            procStartInfo.UseShellExecute = false;
+            procStartInfo.CreateNoWindow = true;
+
+            Process proc = new Process();
+            proc.StartInfo = procStartInfo;
+            proc.Start();
+
+            string result = proc.StandardOutput.ReadToEnd();
+            Console.WriteLine("res: {0}", result);
         }
         public void DrivesTemperatureProbe()
         {

@@ -9,22 +9,19 @@ namespace dotnetCoreConsole
         static void Main(string[] args)
         {
             SystemInformation mySystem = new SystemInformation(DefinePlatform());
-            //SystemInformation.GetNetworkInterfacesInfo();
-            //mySystem.GetSystemMemoryInfo();
-            //Console.WriteLine();
-            //mySystem.GetCPUInfo();
-            //Console.WriteLine();
+
             try
             {
-                //mySystem.GetUSBPortsInfo();
-                //SystemInformation.GetDiskInfo();
                 mySystem.GetDrivesTemperature();
+                //mySystem.GetUSBPortsInfo();
+                //mySystem.GetSystemMemoryInfo();
+                //mySystem.GetCPUInfo();
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
             }
-            //Console.ReadLine();
+            Console.ReadLine();
         }
         static IOperatingSystemSpecial DefinePlatform()
         {
