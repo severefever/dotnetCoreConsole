@@ -1,27 +1,26 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using System.Threading.Tasks;
 
 namespace dotnetCoreConsole
 {
+    using static SystemInformation;
     internal class Program
     {
         static void Main(string[] args)
         {
             SystemInformation mySystem = new SystemInformation(DefinePlatform());
-
             try
             {
-                mySystem.GetDrivesTemperature();
+                //mySystem.GetDrivesTemperature();
                 //mySystem.GetUSBPortsInfo();
                 //mySystem.GetSystemMemoryInfo();
-                //mySystem.GetCPUInfo();
+                Print(GetOSInfo());
+                Print(GetNumberOfProcesses());
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
             }
-            Console.ReadLine();
         }
         static IOperatingSystemSpecial DefinePlatform()
         {

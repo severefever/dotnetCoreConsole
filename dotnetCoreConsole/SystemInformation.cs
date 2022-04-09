@@ -5,10 +5,11 @@ using System.Diagnostics;
 using System.Management;
 using System.Net.NetworkInformation;
 using Microsoft.Win32;
+using System.Collections.Generic;
 
 namespace dotnetCoreConsole
 {
-    interface IOperatingSystemSpecial
+    public interface IOperatingSystemSpecial
     {
         void USBPortsInfo();
         void MemoryInfo();
@@ -16,7 +17,7 @@ namespace dotnetCoreConsole
         void DrivesTemperatureProbe();
         void CPUTemperatureProbe();
     }
-    internal class SystemInformation
+    public partial class SystemInformation
     {
         IOperatingSystemSpecial _specialOS;
         public SystemInformation() { }
@@ -93,14 +94,21 @@ namespace dotnetCoreConsole
                 }
             }
         }
-        public static void GetOSInfo()
+        public static Dictionary<string, string> GetOSInfo()
         {
-            Console.WriteLine("Описание ОС: {0}", RuntimeInformation.OSDescription);
-            Console.WriteLine("Архитектура ОС: {0}", RuntimeInformation.OSArchitecture);
+            //Console.WriteLine("Архитектура ОС: {0}", RuntimeInformation.OSArchitecture.ToString());
+            //Console.WriteLine("Описание ОС: {0}", RuntimeInformation.OSDescription);
+            var OSInfo = new Dictionary<string, string>();
+            OSInfo.Add("Описание ОС", RuntimeInformation.OSDescription);
+            OSInfo.Add("Архитектура ОС", RuntimeInformation.OSArchitecture.ToString());
+            return OSInfo;
         }
-        public static void GetNumberOfProcesses()
+        public static Dictionary<string, int> GetNumberOfProcesses()
         {
-            Console.WriteLine($"Количество процессов: {Process.GetProcesses().Length}");
+            //Console.WriteLine("Количество процессов: {0}", Process.GetProcesses().Length);
+            var NumberOfProcesses = new Dictionary<string, int>();
+            NumberOfProcesses.Add("Количество процессов", Process.GetProcesses().Length);
+            return NumberOfProcesses;
         }
         public static void GetNetworkInterfacesInfo()
         {
@@ -248,6 +256,8 @@ namespace dotnetCoreConsole
                 }
             }
             searcher.Dispose();
+
+
         }
         public void CPUTemperatureProbe()
         {
