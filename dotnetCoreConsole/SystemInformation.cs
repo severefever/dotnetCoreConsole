@@ -278,7 +278,7 @@ namespace dotnetCoreConsole
         public void MemoryInfo()
         {
             // Пусто.
-            var data = SystemInformation.ProcessExecution("bash", "meminfo.sh");
+            var data = SystemInformation.ProcessExecution("bash", "../../../../meminfo.sh");
             foreach (var d in data)
             {
                 Console.WriteLine(d);
@@ -286,7 +286,7 @@ namespace dotnetCoreConsole
         }
         public void CPUInfo()
         {
-            var data = SystemInformation.ProcessExecution("bash", "cpuinfo.sh");
+            var data = SystemInformation.ProcessExecution("bash", "../../../../cpuinfo.sh");
             foreach (var d in data)
             {
                 Console.WriteLine(d);
