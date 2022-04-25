@@ -12,10 +12,11 @@ namespace dotnetCoreConsole
             try
             {
                 //mySystem.GetDrivesTemperature();
-                //mySystem.GetUSBPortsInfo();
-                //mySystem.GetSystemMemoryInfo();
-                Print(GetOSInfo());
-                Print(GetNumberOfProcesses());
+                mySystem.GetSystemMemoryInfo();
+                Console.WriteLine();
+                mySystem.GetUSBPortsInfo();
+                Console.WriteLine();
+                mySystem.GetCPUInfo();
             }
             catch (Exception ex)
             {

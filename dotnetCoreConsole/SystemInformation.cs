@@ -268,26 +268,29 @@ namespace dotnetCoreConsole
     {
         public void USBPortsInfo()
         {
-            // Пусто.
+            var data = SystemInformation.ProcessExecution("lsusb");
+
+            foreach (var d in data)
+            {
+                Console.WriteLine(d);
+            }
         }
         public void MemoryInfo()
         {
             // Пусто.
+            var data = SystemInformation.ProcessExecution("bash", "meminfo.sh");
+            foreach (var d in data)
+            {
+                Console.WriteLine(d);
+            }
         }
         public void CPUInfo()
         {
-            // Пусто.
-            ProcessStartInfo procStartInfo = new ProcessStartInfo("/bin/sh", "-c 'getconf _NPROCESSORS_ONLN'");
-            procStartInfo.RedirectStandardOutput = true;
-            procStartInfo.UseShellExecute = false;
-            procStartInfo.CreateNoWindow = true;
-
-            Process proc = new Process();
-            proc.StartInfo = procStartInfo;
-            proc.Start();
-
-            string result = proc.StandardOutput.ReadToEnd();
-            Console.WriteLine("res: {0}", result);
+            var data = SystemInformation.ProcessExecution("bash", "cpuinfo.sh");
+            foreach (var d in data)
+            {
+                Console.WriteLine(d);
+            }
         }
         public void DrivesTemperatureProbe()
         {
