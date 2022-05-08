@@ -3,14 +3,17 @@
 physicalCpuCount=$(lscpu -p | egrep -v '^#' | sort -u -t, -k 2,4 | wc -l)
 # Количество потоков процессора (logical cores)
 logicalCpuCount=$(lscpu -p | egrep -v '^#' | wc -l)
-# Model name
-modelName=$(cat /proc/cpuinfo | egrep -i 'model name' | tr -s ' ' | cut -d' ' -f3-)
-# Current clock speed
+# Название модели
+modelName=$(cat /proc/cpuinfo | egrep -i 'model name' | tr -s ' ' | cut -d' ' -f3- | uniq)
+# Текущая частота процессора
 currentSpeed=$(cat /proc/cpuinfo | egrep -i 'cpu mhz' | tr -s ' ' | cut -d' ' -f3- | uniq)
-# Current load percentage
-loadPercentage=$(awk '{u=$2+$4; t=$2+$4+$5; if (NR==1){u1=u; t1=t;} else printf "%.1f", ($2+$4-u1) * 100 / (t-t1) "%"; }' <(grep 'cpu ' /proc/stat) <(sleep 0.5;grep 'cpu ' /proc/stat))
-echo "model name: ${modelName%$'\r'}"
-echo "current clock speed: ${currentSpeed%$'\r'} Mhz"
-echo "physical cores: ${physicalCpuCount%$'\r'}"
-echo "logical cores: ${logicalCpuCount%$'\r'}"
-echo "current load: ${loadPercentage%$'\r'}%"
+# Текущая загрузка процессора
+loadPercentage=$(top -bn1 | grep "Cpu(s)" | sed -r 's/\,([0-9]{1,2})\b/.\1/g' |  sed "s/.*, *\([0-9.]*\)%* id.*/\1/" | awk '{print 100 - $1}')
+# Температура
+cpuTemp=$(sensors | egrep -i 'Package id' | awk '{print $4}' | sed 's/[^0-9.]//g' | uniq)
+echo "${modelName%$'\r'}"
+echo "${currentSpeed%$'\r'}"
+echo "${physicalCpuCount%$'\r'}"
+echo "${logicalCpuCount%$'\r'}"
+echo "${loadPercentage%$'\r'}"
+echo "${cpuTemp%$'\r'}"

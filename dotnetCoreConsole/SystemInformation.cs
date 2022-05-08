@@ -9,13 +9,65 @@ using System.Collections.Generic;
 
 namespace dotnetCoreConsole
 {
+    public struct Disk
+    {
+        public string model;
+        public string label;
+        public DriveType type;
+        public string driveFormat;
+        public double totalFreeSpace;
+        public double totalSize;
+        public double usedSpace;
+        public string instanceName;
+        public double temperature;
+    }
+    struct DiskTemp
+	{
+        public string model;
+        public string instanceName;
+        public double temperature;
+	}
+    public struct OperatingSystem
+    {
+        public string description;
+        public string architecture;
+    }
+    public struct NetInts
+    {
+        public string name;
+        public NetworkInterfaceType type;
+        public string description;
+        public List<(string, string)> dns;
+        public List<string> gateway;
+        public List<(string, string)> unicast;
+    }
+    public struct USB
+    {
+        public string name;
+        public string deviceID;
+        public string description;
+    }
+    public struct Memory
+	{
+        public double total;
+        public double used;
+        public double free;
+	}
+    public struct CentralProcessorUnit
+	{
+        public string name;
+        public int numberOfCores;
+        public int numberOfLogicalProcessors;
+        public double currentClockSpeed;
+        public double loadPercentage;
+        public double temperature;
+	}
     public interface IOperatingSystemSpecial
     {
-        void USBPortsInfo();
-        void MemoryInfo();
-        void CPUInfo();
-        void DrivesTemperatureProbe();
-        void CPUTemperatureProbe();
+        List<USB> USBPortsInfo();
+        Memory MemoryInfo();
+        CentralProcessorUnit CPUInfo();
+        List<Disk> DiskInfo();
     }
     public partial class SystemInformation
     {
@@ -25,179 +77,137 @@ namespace dotnetCoreConsole
         {
             _specialOS = specialOS;
         }
-        public void GetUSBPortsInfo()
+        public List<USB> GetUSBPortsInfo()
         {
-            _specialOS.USBPortsInfo();
+            return _specialOS.USBPortsInfo();
         }
-        public void GetSystemMemoryInfo()
+        public Memory GetSystemMemoryInfo()
         {
-            _specialOS.MemoryInfo();
+            return _specialOS.MemoryInfo();
         }
-        public void GetCPUInfo()
+        public CentralProcessorUnit GetCPUInfo()
         {
-            _specialOS.CPUInfo();
+            return _specialOS.CPUInfo();
         }
-        public void GetDrivesTemperature()
+        public List<Disk> GetDiskInfo()
         {
-            _specialOS.DrivesTemperatureProbe();
-        }
-        public void GetCPUTemperature()
-        {
-            _specialOS.CPUTemperatureProbe();
+            return _specialOS.DiskInfo();
         }
         //
         // Crossplatform methods
         //
-        public static void GetDiskInfo()
+        public static OperatingSystem GetOSInfo()
         {
-            DriveInfo[] allDrives = DriveInfo.GetDrives();
-            string[] ignoringDriveFormats = new string[] { "pstorefs", "squashfs", "msdos" };
-            bool isSkip = false;
-            foreach (DriveInfo drive in allDrives)
-            {
-                if (drive.DriveType != DriveType.Fixed && drive.DriveType != DriveType.Removable && drive.DriveType != DriveType.Network)
-                    continue;
-                foreach (string format in ignoringDriveFormats)
-                {
-                    if (drive.DriveFormat.Equals(format))
-                    {
-                        isSkip = true;
-                        break;
-                    }
-                }
-                if (isSkip == true)
-                {
-                    isSkip = false;
-                    continue;
-                }
-                Console.WriteLine("Диск:      {0}", drive.Name);
-                Console.WriteLine("Тип диска: {0}", drive.DriveType);
-                if (drive.IsReady == true)
-                {
-                    Console.WriteLine("  Название диска:   {0}", drive.VolumeLabel);
-                    Console.WriteLine("  Файловая система: {0}", drive.DriveFormat);
-                    Console.WriteLine(
-                        "  Общее свободное пространство\n" +
-                        "     для текущего пользователя:   {0} гигабайт",
-                        Math.Round(drive.AvailableFreeSpace / 1073741824.0, 2));
-
-                    Console.WriteLine(
-                        "  Общее свободное пространство:   {0} гигабайт",
-                        Math.Round(drive.TotalFreeSpace / 1073741824.0, 2));
-
-                    Console.WriteLine(
-                        "  Общий объем диска:              {0} гигабайт",
-                        Math.Round(drive.TotalSize / 1073741824.0, 2));
-                    Console.WriteLine(
-                        "  Занято пространства:            {0} гигабайт",
-                        Math.Round(Convert.ToDouble(drive.TotalSize - drive.TotalFreeSpace) / 1073741824.0, 2));
-                }
-            }
+            OperatingSystem operatingSystem = new OperatingSystem();
+            operatingSystem.description = RuntimeInformation.OSDescription;
+            operatingSystem.architecture = RuntimeInformation.OSArchitecture.ToString();
+            return operatingSystem;
         }
-        public static Dictionary<string, string> GetOSInfo()
+        public static int GetNumberOfProcesses()
         {
-            //Console.WriteLine("Архитектура ОС: {0}", RuntimeInformation.OSArchitecture.ToString());
-            //Console.WriteLine("Описание ОС: {0}", RuntimeInformation.OSDescription);
-            var OSInfo = new Dictionary<string, string>();
-            OSInfo.Add("Описание ОС", RuntimeInformation.OSDescription);
-            OSInfo.Add("Архитектура ОС", RuntimeInformation.OSArchitecture.ToString());
-            return OSInfo;
+            return Process.GetProcesses().Length;
         }
-        public static Dictionary<string, int> GetNumberOfProcesses()
+        public static List<NetInts> GetNetworkInterfacesInfo()
         {
-            //Console.WriteLine("Количество процессов: {0}", Process.GetProcesses().Length);
-            var NumberOfProcesses = new Dictionary<string, int>();
-            NumberOfProcesses.Add("Количество процессов", Process.GetProcesses().Length);
-            return NumberOfProcesses;
-        }
-        public static void GetNetworkInterfacesInfo()
-        {
+            var adaptersList = new List<NetInts>();
             NetworkInterface[] adapters = NetworkInterface.GetAllNetworkInterfaces();
             if (adapters == null || adapters.Length < 1)
             {
-                Console.WriteLine("Сетевых интерфейсов не найдено.");
-                return;
+                return adaptersList;
             }
-            Console.WriteLine("Количество сетевых интерфейсов: {0}", adapters.Length);
             foreach (NetworkInterface adapter in adapters)
             {
+                NetInts adapterInfo = new NetInts();
                 IPInterfaceProperties properties = adapter.GetIPProperties();
-                Console.WriteLine("Интерфейс: {0}, тип: {1}", adapter.Name, adapter.NetworkInterfaceType);
-                Console.WriteLine("Описание: {0}", adapter.Description);
-                //Console.WriteLine("Физический адрес: {0}", adapter.GetPhysicalAddress());
+                adapterInfo.name = adapter.Name;
+                adapterInfo.type = adapter.NetworkInterfaceType;
+                adapterInfo.description = adapter.Description;
                 if (adapter.NetworkInterfaceType == NetworkInterfaceType.Loopback)
                     continue;
+                // DNS-адреса.
                 if (properties.DnsAddresses.Count > 0)
                 {
-                    Console.WriteLine("DNS-адреса:");
+                    adapterInfo.dns = new List<(string, string)>();
                     foreach (var dnsAdd in properties.DnsAddresses)
                     {
-                        Console.WriteLine("\t{0}, IPv4: {1}", dnsAdd.ToString(), dnsAdd.MapToIPv4().ToString());
+                        adapterInfo.dns.Add((dnsAdd.ToString(), dnsAdd.MapToIPv4().ToString()));
                     }
                 }
+                // Адреса шлюзов.
                 if (properties.GatewayAddresses.Count > 0)
                 {
-                    Console.WriteLine("Адреса шлюза:");
+                    adapterInfo.gateway = new List<string>();
                     foreach (var gtwAdd in properties.GatewayAddresses)
                     {
-                        Console.WriteLine("\t{0}", gtwAdd.Address);
+                        adapterInfo.gateway.Add(gtwAdd.Address.ToString());
                     }
                 }
+                // Маски подсетей.
                 if (properties.UnicastAddresses.Count > 0)
                 {
-                    Console.WriteLine("Маски подсетей:");
+                    adapterInfo.unicast = new List<(string, string)>();
                     foreach (var uni in properties.UnicastAddresses)
                     {
-                        Console.WriteLine("\t{0}, адрес: {1}", uni.IPv4Mask, uni.Address.MapToIPv4());
+                        adapterInfo.unicast.Add((uni.IPv4Mask.ToString(), uni.Address.MapToIPv4().ToString()));
                     }
                 }
-                Console.WriteLine();
+                adaptersList.Add(adapterInfo);
             }
+            return adaptersList;
         }
     }
     class WindowsSystemInfo : IOperatingSystemSpecial
     {
-        public void USBPortsInfo()
+        public List<USB> USBPortsInfo()
         {
+            var usbs = new List<USB>();
             ManagementObjectSearcher objOSDetails = new ManagementObjectSearcher("SELECT * FROM Win32_PnPEntity");
             foreach (ManagementObject mo in objOSDetails.Get())
             {
+                USB usb = new USB();
                 if (Convert.ToString(mo["DeviceID"]).StartsWith("USB"))
                 {
-                    Console.WriteLine("Имя: {0}, ID: {1}", mo["Name"], mo["DeviceID"]);
-                    if (Convert.ToString(mo["Name"]) != Convert.ToString(mo["Description"]))
-                        Console.WriteLine("Описание: {0}", mo["Description"]);
+                    usb.name = mo["Name"].ToString();
+                    usb.deviceID = mo["DeviceID"].ToString();
+                    if (mo["Name"].ToString() != mo["Description"].ToString())
+					{
+                        usb.description = mo["Description"].ToString();
+					}
+                    usbs.Add(usb);
                 }
             }
             objOSDetails.Dispose();
+            return usbs;
         }
-        public void MemoryInfo()
+        public Memory MemoryInfo()
         {
+            Memory memory = new Memory();
             PerformanceCounter memAvailable = new PerformanceCounter("Memory", "Available MBytes");
             double availableMemory = memAvailable.RawValue;
             double totalMemory = 0.0;
             ManagementObjectSearcher objDetails = new ManagementObjectSearcher("SELECT * FROM Win32_PhysicalMemory");
             foreach (ManagementObject mo in objDetails.Get())
             {
-                totalMemory += Convert.ToDouble(mo["Capacity"]) / 1048576.0;
+                totalMemory += Double.Parse(mo["Capacity"].ToString()) / 1048576.0;
             }
-            Console.WriteLine("Всего оперативной памяти:\t{0} МБ", totalMemory);
-            Console.WriteLine("Доступно:\t{0} МБ", availableMemory);
-            Console.WriteLine("Занято:\t{0} МБ", totalMemory - availableMemory);
+            memory.total = Math.Round(totalMemory);
+            memory.free = Math.Round(availableMemory);
+            memory.used = Math.Round(totalMemory - availableMemory);
             objDetails.Dispose();
+            return memory;
         }
-        public void CPUInfo()
+        public CentralProcessorUnit CPUInfo()
         {
+            CentralProcessorUnit cpu = new CentralProcessorUnit();
             SelectQuery sq = new SelectQuery("Win32_Processor");
             ManagementObjectSearcher objOSDetails = new ManagementObjectSearcher(sq);
             foreach (ManagementObject mo in objOSDetails.Get())
             {
-                Console.WriteLine("Модель процессора:\t{0}", mo["Name"]);
-                Console.WriteLine("Количество ядер:\t{0}", mo["NumberOfCores"]);
-                Console.WriteLine("Количество потоков:\t{0}", mo["NumberOfLogicalProcessors"]);
-                Console.WriteLine("Максимальная частота:\t{0} МГц", mo["MaxClockSpeed"]);
-                Console.WriteLine("Текущая частота:\t{0} МГц", mo["CurrentClockSpeed"]);
-                Console.WriteLine("Загрузка процессора:\t{0}%", mo["LoadPercentage"]);
+                cpu.name = mo["Name"].ToString();
+                cpu.numberOfCores = Int32.Parse(mo["NumberOfCores"].ToString());
+                cpu.numberOfLogicalProcessors = Int32.Parse(mo["NumberOfLogicalProcessors"].ToString());
+                cpu.currentClockSpeed = Double.Parse(mo["CurrentClockSpeed"].ToString());
+                cpu.loadPercentage = Double.Parse(mo["LoadPercentage"].ToString());
             }
             /*
             objOSDetails = new ManagementObjectSearcher("SELECT * FROM Win32_PerfFormattedData_PerfOS_Processor WHERE Name=\"_Total\"");
@@ -206,99 +216,178 @@ namespace dotnetCoreConsole
                 Console.WriteLine("Загрузка процессора:\t{0}%", mo["PercentProcessorTime"]);
             }
             */
+            try
+			{
+                double temp = 0.0;
+                objOSDetails = new ManagementObjectSearcher(@"root\WMI", "SELECT * FROM MSAcpi_ThermalZoneTemperature");
+
+                foreach (ManagementObject mo in objOSDetails.Get())
+                {
+                    temp = Double.Parse(mo["CurrentTemperature"].ToString());
+                    // Перевод температуры в градусы Цельсия.
+                    temp = (temp - 2732) / 10.0;
+                }
+                cpu.temperature = temp;
+            }
+            catch (Exception ex)
+			{
+                cpu.temperature = -1.0;
+                Console.WriteLine(ex.Message);
+			}
             objOSDetails.Dispose();
+            return cpu;
         }
-        public void DrivesTemperatureProbe()
-        {
-            ManagementObjectSearcher searcher = new ManagementObjectSearcher("root\\WMI", "SELECT * FROM MSStorageDriver_ATAPISmartData");
-            string friendlyName = null;
-            string instanceName = null;
-            RegistryKey hLocal = Registry.LocalMachine;
-            foreach (ManagementObject obj in searcher.Get())
+        public List<Disk> DiskInfo()
+		{
+            var disks = new List<Disk>();
+            List<DiskTemp> tempList = GetDiskTemperature();
+
+            var query = new SelectQuery("SELECT * FROM Win32_DiskDrive");
+            var searcher = new ManagementObjectSearcher(query);
+            foreach (ManagementObject moDisk in searcher.Get())
             {
-                // Получение имени диска.
-                instanceName = obj["InstanceName"].ToString();
-                if (instanceName.EndsWith("_0"))
+                Disk disk = new Disk();
+                // Запросить связанные разделы для текущего DeviceID.
+                string assocQuery = "Associators of {Win32_DiskDrive.DeviceID='" +
+                                                     moDisk.Properties["DeviceID"].Value.ToString() + "'}" +
+                                                     "where AssocClass=Win32_DiskDriveToDiskPartition";
+                var assocPart = new ManagementObjectSearcher(assocQuery);
+                // Запросить связанные разделы для каждого диска.
+                foreach (ManagementObject moPart in assocPart.Get())
                 {
-                    instanceName = instanceName.Substring(0, instanceName.Length - 2);
-                }
-                friendlyName = Convert.ToString(hLocal.OpenSubKey("SYSTEM\\CurrentControlSet\\Enum\\" + instanceName).GetValue("FriendlyName"));
-                Console.WriteLine("Имя диска:\t{0}", friendlyName);
-
-                byte[] vendorSpec = obj["VendorSpecific"] as byte[];
-
-                const int tableID = 2;
-                const int temperatureID = 194;
-                const int tableRawValue = 7;
-                const int numOfSMARTParams = 30;
-                const int tableMultiplier = 12;
-                for (int i = 0; i < numOfSMARTParams; i++)
-                {
-                    /*
-                    Вся информация лежит в vendorSpec (информация, которую предоставляет S.M.A.R.T).
-                    Этот массив по сути является таблицей (матрицей), в которой всего 30 строк.
-                    В каждой строке 12 чисел (уже переведенных в 10-тичную систему счисления).
-                    Каждая строка содержит какой-то параметр диска, по типу температуры, частоты ошибок и т.д.
-                     
-                    Идентификатор атрибута находится в 3-ей ячейке таблицы (если считать с нуля, то во 2-ой (tableID)).
-                    Этот идентификатор позволяет понять, какая информация хранится в этой строке.
-                    Если ID = 194 (в 16-тиричной системе C2), то это означает, что в этой строке хранится значение Температуры (temperatureID).
-                    
-                    Значение атрибута хранится в 8-ой ячейке таблицы (если считать с нуля, то в 7-ой (tableRawValue)).
-                    Хранится сразу же в 10-тичном формате, в градусах ЦЕЛЬСИЯ.
-
-                    Такие дела :\
-                    */
-                    if (vendorSpec[i * tableMultiplier + tableID] == temperatureID)
+                    // Запросить связанные логические диски для текущего PartitionID.
+                    string logDiskQuery = "Associators of {Win32_DiskPartition.DeviceID='" +
+                                           moPart.Properties["DeviceID"].Value.ToString() + "'} " +
+                                           "where AssocClass=Win32_LogicalDiskToPartition";
+                    var logDisk = new ManagementObjectSearcher(logDiskQuery);
+                    // Запросить логические диски для каждого раздела.
+                    foreach (var logDiskEnu in logDisk.Get())
                     {
-                        Console.WriteLine("Температура:\t{0} °C", vendorSpec[i * 12 + tableRawValue]);
+                        disk.type = (DriveType)Int32.Parse(logDiskEnu["DriveType"].ToString());
+                        disk.model = moDisk["Model"].ToString();
+                        disk.driveFormat = logDiskEnu["FileSystem"].ToString();
+                        disk.totalFreeSpace = Math.Round(Double.Parse(logDiskEnu["FreeSpace"].ToString()) / 1073741824.0, 2);
+                        disk.totalSize = Math.Round(Double.Parse(logDiskEnu["Size"].ToString()) / 1073741824.0, 2);
+                        disk.usedSpace = Math.Round(disk.totalSize - disk.totalFreeSpace, 2);
+                        disk.label = logDiskEnu["Name"].ToString();
+
+                        if (tempList.Count > 0)
+						{
+                            foreach (var temps in tempList)
+                            {
+                                if (disk.model.Equals(temps.model))
+                                {
+                                    disk.instanceName = temps.instanceName;
+                                    disk.temperature = temps.temperature;
+                                }
+                            }
+                        }
                     }
+                    logDisk.Dispose();
                 }
+                disks.Add(disk);
+                assocPart.Dispose();
             }
             searcher.Dispose();
-
-
+            return disks;
         }
-        public void CPUTemperatureProbe()
-        {
-            // Пусто.
-        }
-    }
-    class LinuxSystemInfo : IOperatingSystemSpecial
-    {
-        public void USBPortsInfo()
-        {
-            var data = SystemInformation.ProcessExecution("lsusb");
+        List<DiskTemp> GetDiskTemperature()
+		{
+            List<DiskTemp> tempList = new List<DiskTemp>();
+            ManagementObjectSearcher smartSearcher = new ManagementObjectSearcher("root\\WMI", "SELECT * FROM MSStorageDriver_ATAPISmartData");
+            string friendlyName;
+            string instanceName;
+            RegistryKey hLocal = Registry.LocalMachine;
+            try
+			{
+                foreach (ManagementObject obj in smartSearcher.Get())
+                {
+                    DiskTemp disk = new DiskTemp();
+                    // Получение имени диска.
+                    instanceName = obj["InstanceName"].ToString();
+                    if (instanceName.EndsWith("_0"))
+                    {
+                        instanceName = instanceName.Substring(0, instanceName.Length - 2);
+                    }
+                    friendlyName = Convert.ToString(hLocal.OpenSubKey("SYSTEM\\CurrentControlSet\\Enum\\" + instanceName).GetValue("FriendlyName"));
+                    disk.instanceName = instanceName;
+                    disk.model = friendlyName;
+                    byte[] vendorSpec = obj["VendorSpecific"] as byte[];
+                    const int tableID = 2;
+                    const int temperatureID = 194;
+                    const int tableRawValue = 7;
+                    const int numOfSMARTParams = 30;
+                    const int tableMultiplier = 12;
+                    for (int i = 0; i < numOfSMARTParams; i++)
+                    {
+                        /*
+                        Вся информация лежит в vendorSpec (информация, которую предоставляет S.M.A.R.T).
+                        Этот массив по сути является таблицей (матрицей), в которой всего 30 строк.
+                        В каждой строке 12 чисел (уже переведенных в 10-тичную систему счисления).
+                        Каждая строка содержит какой-то параметр диска, по типу температуры, частоты ошибок и т.д.
 
-            foreach (var d in data)
-            {
-                Console.WriteLine(d);
+                        Идентификатор атрибута находится в 3-ей ячейке таблицы (если считать с нуля, то во 2-ой (tableID)).
+                        Этот идентификатор позволяет понять, какая информация хранится в этой строке.
+                        Если ID = 194 (в 16-тиричной системе C2), то это означает, что в этой строке хранится значение Температуры (temperatureID).
+
+                        Значение атрибута хранится в 8-ой ячейке таблицы (если считать с нуля, то в 7-ой (tableRawValue)).
+                        Хранится сразу же в 10-тичном формате, в градусах ЦЕЛЬСИЯ.
+                        */
+                        if (vendorSpec[i * tableMultiplier + tableID] == temperatureID)
+                        {
+                            disk.temperature = Convert.ToDouble(vendorSpec[i * 12 + tableRawValue]);
+                        }
+                    }
+                    tempList.Add(disk);
+                }
             }
-        }
-        public void MemoryInfo()
-        {
-            // Пусто.
+            catch (Exception ex)
+			{
+                Console.WriteLine(ex.Message);
+			}
+            smartSearcher.Dispose();
+            return tempList;
+		}
+    }
+	class LinuxSystemInfo : IOperatingSystemSpecial
+	{
+		public List<USB> USBPortsInfo()
+		{
+			var data = SystemInformation.ProcessExecution("lsusb");
+			var usbs = new List<USB>();
+			USB usb = new USB();
+			foreach (var d in data)
+			{
+				usb.name = d.ToString();
+			}
+			return usbs;
+		}
+		public Memory MemoryInfo()
+		{
+			Memory memory = new Memory();
             var data = SystemInformation.ProcessExecution("bash", "../../../../meminfo.sh");
-            foreach (var d in data)
-            {
-                Console.WriteLine(d);
-            }
-        }
-        public void CPUInfo()
+            memory.total = Double.Parse(data[0]);
+            memory.free = Double.Parse(data[1]);
+            memory.used = Double.Parse(data[2]);
+            return memory;
+		}
+		public CentralProcessorUnit CPUInfo()
+		{
+            CentralProcessorUnit cpu = new CentralProcessorUnit();
+			var data = SystemInformation.ProcessExecution("bash", "../../../../cpuinfo.sh");
+            cpu.name = data[0];
+            cpu.currentClockSpeed = Double.Parse(data[1]);
+            cpu.numberOfCores = Int32.Parse(data[2]);
+            cpu.numberOfLogicalProcessors = Int32.Parse(data[3]);
+            cpu.loadPercentage = Double.Parse(data[4]);
+            cpu.temperature = Double.Parse(data[5]);
+            return cpu;
+		}
+        public List<Disk> DiskInfo()
         {
-            var data = SystemInformation.ProcessExecution("bash", "../../../../cpuinfo.sh");
-            foreach (var d in data)
-            {
-                Console.WriteLine(d);
-            }
+            var disks = new List<Disk>();
+
+            return disks;
         }
-        public void DrivesTemperatureProbe()
-        {
-            // Пусто.
-        }
-        public void CPUTemperatureProbe()
-        {
-            // Пусто.
-        }
-    }
+	}
 }
