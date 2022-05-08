@@ -231,8 +231,7 @@ namespace dotnetCoreConsole
             }
             catch (Exception ex)
 			{
-                cpu.temperature = -1.0;
-                Console.WriteLine(ex.Message);
+                Console.WriteLine("Ошибка получения температуры процессора: {0}", ex.Message);
 			}
             objOSDetails.Dispose();
             return cpu;
@@ -343,7 +342,7 @@ namespace dotnetCoreConsole
             }
             catch (Exception ex)
 			{
-                Console.WriteLine(ex.Message);
+                Console.WriteLine("Ошибка получения данных S.M.A.R.T дисков: {0}", ex.Message);
 			}
             smartSearcher.Dispose();
             return tempList;

@@ -90,21 +90,14 @@ namespace dotnetCoreConsole
 			Console.WriteLine("Количество потоков:\t{0}", dataToPrint.numberOfLogicalProcessors);
 			Console.WriteLine("Текущая частота:\t{0} МГц", dataToPrint.currentClockSpeed);
 			Console.WriteLine("Загрузка процессора:\t{0}%", dataToPrint.loadPercentage);
-			if (dataToPrint.temperature == -1.0)
-			{
-				Console.WriteLine("Не удалось получить температуру.");
-			}
-			else
-			{
-				Console.WriteLine("Температура процессора:\t{0} C", dataToPrint.temperature);
-			}
+			Console.WriteLine("Температура процессора:\t{0} °С", dataToPrint.temperature);
 		}
 		// Вывод информации об оперативной памяти.
 		public static void Print(Memory dataToPrint)
 		{
-			Console.WriteLine("Всего оперативной памяти:\t{0} МБ", dataToPrint.total);
-			Console.WriteLine("Доступно:\t{0} МБ", dataToPrint.free);
-			Console.WriteLine("Занято:\t{0} МБ", dataToPrint.used);
+			Console.WriteLine("Всего оперативной памяти: {0} МБ", dataToPrint.total);
+			Console.WriteLine("Доступно: {0} МБ", dataToPrint.free);
+			Console.WriteLine("Занято: {0} МБ", dataToPrint.used);
 		}
 	}
 }
