@@ -13,7 +13,7 @@ namespace dotnetCoreConsole
     {
         public string model;
         public string label;
-        public DriveType type;
+        public string type;
         public string driveFormat;
         public double totalFreeSpace;
         public double totalSize;
@@ -45,7 +45,6 @@ namespace dotnetCoreConsole
     {
         public string name;
         public string deviceID;
-        public string description;
     }
     public struct Memory
 	{
@@ -93,9 +92,11 @@ namespace dotnetCoreConsole
         {
             return _specialOS.DiskInfo();
         }
+
         //
-        // Crossplatform methods
+        // Кроссплатформенные методы
         //
+
         public static OperatingSystem GetOSInfo()
         {
             OperatingSystem operatingSystem = new OperatingSystem();
@@ -169,10 +170,6 @@ namespace dotnetCoreConsole
                 {
                     usb.name = mo["Name"].ToString();
                     usb.deviceID = mo["DeviceID"].ToString();
-                    if (mo["Name"].ToString() != mo["Description"].ToString())
-					{
-                        usb.description = mo["Description"].ToString();
-					}
                     usbs.Add(usb);
                 }
             }
@@ -262,7 +259,7 @@ namespace dotnetCoreConsole
                     // Запросить логические диски для каждого раздела.
                     foreach (var logDiskEnu in logDisk.Get())
                     {
-                        disk.type = (DriveType)Int32.Parse(logDiskEnu["DriveType"].ToString());
+                        disk.type = Convert.ToString((DriveType)Int32.Parse(logDiskEnu["DriveType"].ToString()));
                         disk.model = moDisk["Model"].ToString();
                         disk.driveFormat = logDiskEnu["FileSystem"].ToString();
                         disk.totalFreeSpace = Math.Round(Double.Parse(logDiskEnu["FreeSpace"].ToString()) / 1073741824.0, 2);
@@ -354,10 +351,28 @@ namespace dotnetCoreConsole
 		{
 			var data = SystemInformation.ProcessExecution("lsusb");
 			var usbs = new List<USB>();
-			USB usb = new USB();
-			foreach (var d in data)
+            
+            const int spaceDel = 6;
+            // Пример вывод команды lsusb в Linux
+            // Bus 001 Device 002: ID 80ee:0021 VirtualBox USB Tablet
+            // Константа нужна, чтобы имя USB-устройства отделить от
+            //  его расположения и ID. Просто ради удобства.
+            foreach (var d in data)
 			{
-				usb.name = d.ToString();
+                USB usb = new USB();
+                int spaceCounter = 0;
+                for (int i = 0; i < d.Length; i++)
+				{
+                    if (d[i].Equals(' '))
+                        spaceCounter++;
+                    if (spaceCounter == spaceDel)
+					{
+                        usb.name = d.Substring(i + 1);
+                        usb.deviceID = d.Substring(0, i);
+                        break;
+					}
+				}
+                usbs.Add(usb);
 			}
 			return usbs;
 		}
@@ -374,19 +389,81 @@ namespace dotnetCoreConsole
 		{
             CentralProcessorUnit cpu = new CentralProcessorUnit();
 			var data = SystemInformation.ProcessExecution("bash", "../../../../cpuinfo.sh");
-            cpu.name = data[0];
-            cpu.currentClockSpeed = Double.Parse(data[1]);
-            cpu.numberOfCores = Int32.Parse(data[2]);
-            cpu.numberOfLogicalProcessors = Int32.Parse(data[3]);
-            cpu.loadPercentage = Double.Parse(data[4]);
-            cpu.temperature = Double.Parse(data[5]);
+            try
+			{
+                cpu.name = data[0];
+                cpu.currentClockSpeed = Double.Parse(data[1]);
+                cpu.numberOfCores = Int32.Parse(data[2]);
+                cpu.numberOfLogicalProcessors = Int32.Parse(data[3]);
+                cpu.loadPercentage = Double.Parse(data[4]);
+                cpu.temperature = Double.Parse(data[5]);
+            }
+            catch (Exception)
+			{
+                cpu.temperature = 0;
+                Console.WriteLine("Ошибка получения температуры процессора!");
+            }
             return cpu;
 		}
         public List<Disk> DiskInfo()
         {
+            var data = SystemInformation.ProcessExecution("bash", "../../../../drivesinfo.sh");
             var disks = new List<Disk>();
-
+            string[] driveInfo;
+            var tempsInfo = GetDiskTemperature();
+            foreach (var d in data)
+			{
+                Disk disk = new Disk();
+                driveInfo = d.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                try
+				{
+                    disk.label = driveInfo[0];
+                    disk.type = driveInfo[1];
+                    disk.driveFormat = driveInfo[2];
+                    disk.totalFreeSpace = Double.Parse(driveInfo[3]);
+                    disk.totalSize = Double.Parse(driveInfo[4]);
+                    disk.usedSpace = Double.Parse(driveInfo[5]);
+                    disk.instanceName = driveInfo[6];
+				}
+                catch (Exception e)
+				{
+                    Console.WriteLine("Ошибка получения данных о дисках: {0}", e);
+				}
+                foreach (var temp in tempsInfo)
+				{
+                    if (disk.instanceName == temp.instanceName)
+					{
+                        disk.model = temp.model;
+                        disk.temperature = temp.temperature;
+					}
+				}
+                disks.Add(disk);
+			}
             return disks;
         }
-	}
+        List<DiskTemp> GetDiskTemperature()
+		{
+            var disksTemp = new List<DiskTemp>();
+            var data = SystemInformation.ProcessExecution("bash", "../../../../drivestemp.sh");
+            string[] driveTemp;
+            foreach (var d in data)
+            {
+                DiskTemp temp = new DiskTemp();
+                driveTemp = d.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                try
+                {
+                    temp.model = driveTemp[0];
+                    temp.temperature = Double.Parse(driveTemp[1]);
+                    temp.instanceName = driveTemp[2];
+                }
+                catch (Exception e)
+                {
+                    temp.temperature = 0;
+                    Console.WriteLine("Ошибка получения температур дисков: {0}", e);
+                }
+                disksTemp.Add(temp);
+            }
+            return disksTemp;
+		}
+    }
 }

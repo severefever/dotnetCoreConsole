@@ -12,26 +12,26 @@ namespace dotnetCoreConsole
             SystemInformation mySystem = new SystemInformation(DefinePlatform());
             try
             {
-                Console.WriteLine("Количество процессов: {0}", GetNumberOfProcesses());
+				Console.WriteLine("Количество процессов: {0}", GetNumberOfProcesses());
 
-                Console.WriteLine("\n------ Информация об ОС ------\n");
-                Print(GetOSInfo());
+				Console.WriteLine("\n------ Информация об ОС ------\n");
+				Print(GetOSInfo());
 
-                Console.WriteLine("\n------ Сетевые интерфейсы ------\n");
-                Print(GetNetworkInterfacesInfo());
+				Console.WriteLine("\n------ Сетевые интерфейсы ------\n");
+				Print(GetNetworkInterfacesInfo());
 
-                Console.WriteLine("\n------ Подключенные USB ------\n");
-                Print(mySystem.GetUSBPortsInfo());
+				Console.WriteLine("\n------ Подключенные USB ------\n");
+				Print(mySystem.GetUSBPortsInfo());
 
-                Console.WriteLine("\n------ Информация о процессоре ------\n");
-                Print(mySystem.GetCPUInfo());
+				Console.WriteLine("\n------ Информация о процессоре ------\n");
+				Print(mySystem.GetCPUInfo());
 
-                Console.WriteLine("\n------ Информация об оперативной памяти ------\n");
-                Print(mySystem.GetSystemMemoryInfo());
+				Console.WriteLine("\n------ Информация об оперативной памяти ------\n");
+				Print(mySystem.GetSystemMemoryInfo());
 
-                Console.WriteLine("\n------ Информация о дисках ------\n");
-                Print(mySystem.GetDiskInfo());
-            }
+				Console.WriteLine("\n------ Информация о дисках ------\n");
+				Print(mySystem.GetDiskInfo());
+			}
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);

@@ -76,9 +76,8 @@ namespace dotnetCoreConsole
 		{
 			foreach (var item in dataToPrint)
 			{
-				Console.WriteLine("Имя: {0}, ID: {1}", item.name, item.deviceID);
-				if (item.description != null)
-					Console.WriteLine("Описание: {0}", item.description);
+				Console.WriteLine("Имя: {0},\nID: {1}", item.name, item.deviceID);
+				Console.WriteLine();
 			}
 
 		}
