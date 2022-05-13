@@ -11,56 +11,56 @@ namespace dotnetCoreConsole
 {
     public struct Disk
     {
-        public string model;
-        public string label;
-        public string type;
-        public string driveFormat;
-        public double totalFreeSpace;
-        public double totalSize;
-        public double usedSpace;
-        public string instanceName;
-        public double temperature;
+        public string Model { get; set; }
+        public string Label { get; set; }
+        public string Type { get; set; }
+        public string DriveFormat { get; set; }
+        public double TotalFreeSpace { get; set; }
+        public double TotalSize { get; set; }
+        public double UsedSpace { get; set; }
+        public string InstanceName { get; set; }
+        public double Temperature { get; set; }
     }
-    struct DiskTemp
+    public struct DiskTemp
 	{
-        public string model;
-        public string instanceName;
-        public double temperature;
-	}
+        public string Model { get; set; }
+        public string InstanceName { get; set; }
+        public double Temperature { get; set; }
+    }
     public struct OperatingSystem
     {
-        public string description;
-        public string architecture;
+        public string Description { get; set; }
+        public string Architecture { get; set; }
     }
     public struct NetInts
     {
-        public string name;
-        public NetworkInterfaceType type;
-        public string description;
-        public List<(string, string)> dns;
-        public List<string> gateway;
-        public List<(string, string)> unicast;
+        public string Name { get; set; }
+        public NetworkInterfaceType Type { get; set; }
+        public string Description { get; set; }
+        public List<(string, string)> DNS { get; set; }
+        public List<string> Gateway { get; set; }
+        public List<(string, string)> Unicast { get; set; }
     }
     public struct USB
     {
-        public string name;
-        public string deviceID;
+        public string Name { get; set; }
+        public string DeviceID { get; set; }
     }
     public struct Memory
 	{
-        public double total;
-        public double used;
-        public double free;
-	}
+        public double Total { get; set; }
+        public double Used { get; set; }
+        public double Free { get; set; }
+    }
     public struct CentralProcessorUnit
 	{
-        public string name;
-        public int numberOfCores;
-        public int numberOfLogicalProcessors;
-        public double currentClockSpeed;
-        public double loadPercentage;
-        public double temperature;
-	}
+        public string Name { get; set; }
+        public int NumberOfCores { get; set; }
+        public int NumberOfLogicalProcessors { get; set; }
+        public double CurrentClockSpeed { get; set; }
+        public double LoadPercentage { get; set; }
+        public double Temperature { get; set; }
+    }
     public interface IOperatingSystemSpecial
     {
         List<USB> USBPortsInfo();
@@ -100,13 +100,14 @@ namespace dotnetCoreConsole
         public static OperatingSystem GetOSInfo()
         {
             OperatingSystem operatingSystem = new OperatingSystem();
-            operatingSystem.description = RuntimeInformation.OSDescription;
-            operatingSystem.architecture = RuntimeInformation.OSArchitecture.ToString();
+            operatingSystem.Description = RuntimeInformation.OSDescription;
+            operatingSystem.Architecture = RuntimeInformation.OSArchitecture.ToString();
             return operatingSystem;
         }
         public static int GetNumberOfProcesses()
         {
-            return Process.GetProcesses().Length;
+            int NumberOfProcesses = Process.GetProcesses().Length;
+            return NumberOfProcesses;
         }
         public static List<NetInts> GetNetworkInterfacesInfo()
         {
@@ -120,36 +121,36 @@ namespace dotnetCoreConsole
             {
                 NetInts adapterInfo = new NetInts();
                 IPInterfaceProperties properties = adapter.GetIPProperties();
-                adapterInfo.name = adapter.Name;
-                adapterInfo.type = adapter.NetworkInterfaceType;
-                adapterInfo.description = adapter.Description;
+                adapterInfo.Name = adapter.Name;
+                adapterInfo.Type = adapter.NetworkInterfaceType;
+                adapterInfo.Description = adapter.Description;
                 if (adapter.NetworkInterfaceType == NetworkInterfaceType.Loopback)
                     continue;
                 // DNS-адреса.
                 if (properties.DnsAddresses.Count > 0)
                 {
-                    adapterInfo.dns = new List<(string, string)>();
+                    adapterInfo.DNS = new List<(string, string)>();
                     foreach (var dnsAdd in properties.DnsAddresses)
                     {
-                        adapterInfo.dns.Add((dnsAdd.ToString(), dnsAdd.MapToIPv4().ToString()));
+                        adapterInfo.DNS.Add((dnsAdd.ToString(), dnsAdd.MapToIPv4().ToString()));
                     }
                 }
                 // Адреса шлюзов.
                 if (properties.GatewayAddresses.Count > 0)
                 {
-                    adapterInfo.gateway = new List<string>();
+                    adapterInfo.Gateway = new List<string>();
                     foreach (var gtwAdd in properties.GatewayAddresses)
                     {
-                        adapterInfo.gateway.Add(gtwAdd.Address.ToString());
+                        adapterInfo.Gateway.Add(gtwAdd.Address.ToString());
                     }
                 }
                 // Маски подсетей.
                 if (properties.UnicastAddresses.Count > 0)
                 {
-                    adapterInfo.unicast = new List<(string, string)>();
+                    adapterInfo.Unicast = new List<(string, string)>();
                     foreach (var uni in properties.UnicastAddresses)
                     {
-                        adapterInfo.unicast.Add((uni.IPv4Mask.ToString(), uni.Address.MapToIPv4().ToString()));
+                        adapterInfo.Unicast.Add((uni.IPv4Mask.ToString(), uni.Address.MapToIPv4().ToString()));
                     }
                 }
                 adaptersList.Add(adapterInfo);
@@ -168,8 +169,8 @@ namespace dotnetCoreConsole
                 USB usb = new USB();
                 if (Convert.ToString(mo["DeviceID"]).StartsWith("USB"))
                 {
-                    usb.name = mo["Name"].ToString();
-                    usb.deviceID = mo["DeviceID"].ToString();
+                    usb.Name = mo["Name"].ToString();
+                    usb.DeviceID = mo["DeviceID"].ToString();
                     usbs.Add(usb);
                 }
             }
@@ -187,9 +188,9 @@ namespace dotnetCoreConsole
             {
                 totalMemory += Double.Parse(mo["Capacity"].ToString()) / 1048576.0;
             }
-            memory.total = Math.Round(totalMemory);
-            memory.free = Math.Round(availableMemory);
-            memory.used = Math.Round(totalMemory - availableMemory);
+            memory.Total = Math.Round(totalMemory);
+            memory.Free = Math.Round(availableMemory);
+            memory.Used = Math.Round(totalMemory - availableMemory);
             objDetails.Dispose();
             return memory;
         }
@@ -200,11 +201,11 @@ namespace dotnetCoreConsole
             ManagementObjectSearcher objOSDetails = new ManagementObjectSearcher(sq);
             foreach (ManagementObject mo in objOSDetails.Get())
             {
-                cpu.name = mo["Name"].ToString();
-                cpu.numberOfCores = Int32.Parse(mo["NumberOfCores"].ToString());
-                cpu.numberOfLogicalProcessors = Int32.Parse(mo["NumberOfLogicalProcessors"].ToString());
-                cpu.currentClockSpeed = Double.Parse(mo["CurrentClockSpeed"].ToString());
-                cpu.loadPercentage = Double.Parse(mo["LoadPercentage"].ToString());
+                cpu.Name = mo["Name"].ToString();
+                cpu.NumberOfCores = Int32.Parse(mo["NumberOfCores"].ToString());
+                cpu.NumberOfLogicalProcessors = Int32.Parse(mo["NumberOfLogicalProcessors"].ToString());
+                cpu.CurrentClockSpeed = Double.Parse(mo["CurrentClockSpeed"].ToString());
+                cpu.LoadPercentage = Double.Parse(mo["LoadPercentage"].ToString());
             }
             /*
             objOSDetails = new ManagementObjectSearcher("SELECT * FROM Win32_PerfFormattedData_PerfOS_Processor WHERE Name=\"_Total\"");
@@ -224,7 +225,7 @@ namespace dotnetCoreConsole
                     // Перевод температуры в градусы Цельсия.
                     temp = (temp - 2732) / 10.0;
                 }
-                cpu.temperature = temp;
+                cpu.Temperature = temp;
             }
             catch (Exception ex)
 			{
@@ -259,22 +260,22 @@ namespace dotnetCoreConsole
                     // Запросить логические диски для каждого раздела.
                     foreach (var logDiskEnu in logDisk.Get())
                     {
-                        disk.type = Convert.ToString((DriveType)Int32.Parse(logDiskEnu["DriveType"].ToString()));
-                        disk.model = moDisk["Model"].ToString();
-                        disk.driveFormat = logDiskEnu["FileSystem"].ToString();
-                        disk.totalFreeSpace = Math.Round(Double.Parse(logDiskEnu["FreeSpace"].ToString()) / 1073741824.0, 2);
-                        disk.totalSize = Math.Round(Double.Parse(logDiskEnu["Size"].ToString()) / 1073741824.0, 2);
-                        disk.usedSpace = Math.Round(disk.totalSize - disk.totalFreeSpace, 2);
-                        disk.label = logDiskEnu["Name"].ToString();
+                        disk.Type = Convert.ToString((DriveType)Int32.Parse(logDiskEnu["DriveType"].ToString()));
+                        disk.Model = moDisk["Model"].ToString();
+                        disk.DriveFormat = logDiskEnu["FileSystem"].ToString();
+                        disk.TotalFreeSpace = Math.Round(Double.Parse(logDiskEnu["FreeSpace"].ToString()) / 1073741824.0, 2);
+                        disk.TotalSize = Math.Round(Double.Parse(logDiskEnu["Size"].ToString()) / 1073741824.0, 2);
+                        disk.UsedSpace = Math.Round(disk.TotalSize - disk.TotalFreeSpace, 2);
+                        disk.Label = logDiskEnu["Name"].ToString();
 
                         if (tempList.Count > 0)
 						{
                             foreach (var temps in tempList)
                             {
-                                if (disk.model.Equals(temps.model))
+                                if (disk.Model.Equals(temps.Model))
                                 {
-                                    disk.instanceName = temps.instanceName;
-                                    disk.temperature = temps.temperature;
+                                    disk.InstanceName = temps.InstanceName;
+                                    disk.Temperature = temps.Temperature;
                                 }
                             }
                         }
@@ -306,8 +307,8 @@ namespace dotnetCoreConsole
                         instanceName = instanceName.Substring(0, instanceName.Length - 2);
                     }
                     friendlyName = Convert.ToString(hLocal.OpenSubKey("SYSTEM\\CurrentControlSet\\Enum\\" + instanceName).GetValue("FriendlyName"));
-                    disk.instanceName = instanceName;
-                    disk.model = friendlyName;
+                    disk.InstanceName = instanceName;
+                    disk.Model = friendlyName;
                     byte[] vendorSpec = obj["VendorSpecific"] as byte[];
                     const int tableID = 2;
                     const int temperatureID = 194;
@@ -331,7 +332,7 @@ namespace dotnetCoreConsole
                         */
                         if (vendorSpec[i * tableMultiplier + tableID] == temperatureID)
                         {
-                            disk.temperature = Convert.ToDouble(vendorSpec[i * 12 + tableRawValue]);
+                            disk.Temperature = Convert.ToDouble(vendorSpec[i * 12 + tableRawValue]);
                         }
                     }
                     tempList.Add(disk);
@@ -367,8 +368,8 @@ namespace dotnetCoreConsole
                         spaceCounter++;
                     if (spaceCounter == spaceDel)
 					{
-                        usb.name = d.Substring(i + 1);
-                        usb.deviceID = d.Substring(0, i);
+                        usb.Name = d.Substring(i + 1);
+                        usb.DeviceID = d.Substring(0, i);
                         break;
 					}
 				}
@@ -379,35 +380,43 @@ namespace dotnetCoreConsole
 		public Memory MemoryInfo()
 		{
 			Memory memory = new Memory();
-            var data = SystemInformation.ProcessExecution("bash", "../../../../meminfo.sh");
-            memory.total = Double.Parse(data[0]);
-            memory.free = Double.Parse(data[1]);
-            memory.used = Double.Parse(data[2]);
+            var data = SystemInformation.ProcessExecution("bash", "./scripts/meminfo.sh");
+            memory.Total = Double.Parse(data[0]);
+            memory.Free = Double.Parse(data[1]);
+            memory.Used = Double.Parse(data[2]);
             return memory;
 		}
 		public CentralProcessorUnit CPUInfo()
 		{
             CentralProcessorUnit cpu = new CentralProcessorUnit();
-			var data = SystemInformation.ProcessExecution("bash", "../../../../cpuinfo.sh");
+			var data = SystemInformation.ProcessExecution("bash", "./scripts/cpuinfo.sh");
             try
 			{
-                cpu.name = data[0];
-                cpu.currentClockSpeed = Double.Parse(data[1]);
-                cpu.numberOfCores = Int32.Parse(data[2]);
-                cpu.numberOfLogicalProcessors = Int32.Parse(data[3]);
-                cpu.loadPercentage = Double.Parse(data[4]);
-                cpu.temperature = Double.Parse(data[5]);
+                var culture = System.Globalization.CultureInfo.CurrentCulture;
+                if (culture.ToString().Equals("ru-RU"))
+				{
+                    data[1] = data[1].Replace('.', ',');
+                    data[4] = data[4].Replace('.', ',');
+                    data[5] = data[5].Replace('.', ',');
+				}
+                
+                cpu.Name = data[0];
+                cpu.CurrentClockSpeed = Double.Parse(data[1]);
+                cpu.NumberOfCores = Int32.Parse(data[2]);
+                cpu.NumberOfLogicalProcessors = Int32.Parse(data[3]);
+                cpu.LoadPercentage = Double.Parse(data[4]);
+                cpu.Temperature = Double.Parse(data[5]);
             }
             catch (Exception)
 			{
-                cpu.temperature = 0;
+                cpu.Temperature = 0;
                 Console.WriteLine("Ошибка получения температуры процессора!");
             }
             return cpu;
 		}
         public List<Disk> DiskInfo()
         {
-            var data = SystemInformation.ProcessExecution("bash", "../../../../drivesinfo.sh");
+            var data = SystemInformation.ProcessExecution("bash", "./scripts/drivesinfo.sh");
             var disks = new List<Disk>();
             string[] driveInfo;
             var tempsInfo = GetDiskTemperature();
@@ -417,13 +426,13 @@ namespace dotnetCoreConsole
                 driveInfo = d.Split(' ', StringSplitOptions.RemoveEmptyEntries);
                 try
 				{
-                    disk.label = driveInfo[0];
-                    disk.type = driveInfo[1];
-                    disk.driveFormat = driveInfo[2];
-                    disk.totalFreeSpace = Double.Parse(driveInfo[3]);
-                    disk.totalSize = Double.Parse(driveInfo[4]);
-                    disk.usedSpace = Double.Parse(driveInfo[5]);
-                    disk.instanceName = driveInfo[6];
+                    disk.Label = driveInfo[0];
+                    disk.Type = driveInfo[1];
+                    disk.DriveFormat = driveInfo[2];
+                    disk.TotalFreeSpace = Math.Round(Double.Parse(driveInfo[3]) / 1024.0, 2);
+                    disk.TotalSize = Math.Round(Double.Parse(driveInfo[4]) / 1024.0, 2);
+                    disk.UsedSpace = Math.Round(Double.Parse(driveInfo[5]) / 1024.0, 2);
+                    disk.InstanceName = driveInfo[6];
 				}
                 catch (Exception e)
 				{
@@ -431,10 +440,10 @@ namespace dotnetCoreConsole
 				}
                 foreach (var temp in tempsInfo)
 				{
-                    if (disk.instanceName == temp.instanceName)
+                    if (disk.InstanceName == temp.InstanceName)
 					{
-                        disk.model = temp.model;
-                        disk.temperature = temp.temperature;
+                        disk.Model = temp.Model;
+                        disk.Temperature = temp.Temperature;
 					}
 				}
                 disks.Add(disk);
@@ -444,7 +453,7 @@ namespace dotnetCoreConsole
         List<DiskTemp> GetDiskTemperature()
 		{
             var disksTemp = new List<DiskTemp>();
-            var data = SystemInformation.ProcessExecution("bash", "../../../../drivestemp.sh");
+            var data = SystemInformation.ProcessExecution("bash", "./scripts/drivestemp.sh");
             string[] driveTemp;
             foreach (var d in data)
             {
@@ -452,13 +461,18 @@ namespace dotnetCoreConsole
                 driveTemp = d.Split(' ', StringSplitOptions.RemoveEmptyEntries);
                 try
                 {
-                    temp.model = driveTemp[0];
-                    temp.temperature = Double.Parse(driveTemp[1]);
-                    temp.instanceName = driveTemp[2];
+                    var culture = System.Globalization.CultureInfo.CurrentCulture;
+                    if (culture.ToString().Equals("ru-RU"))
+                    {
+                        driveTemp[1] = driveTemp[1].Replace('.', ',');
+                    }
+                    temp.Model = driveTemp[0];
+                    temp.Temperature = Double.Parse(driveTemp[1]);
+                    temp.InstanceName = driveTemp[2];
                 }
                 catch (Exception e)
                 {
-                    temp.temperature = 0;
+                    temp.Temperature = 0;
                     Console.WriteLine("Ошибка получения температур дисков: {0}", e);
                 }
                 disksTemp.Add(temp);

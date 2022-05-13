@@ -9,23 +9,23 @@ namespace dotnetCoreConsole
 		// Вывод информации об Операционной Системе.
 		public static void Print(OperatingSystem dataToPrint)
 		{
-			Console.WriteLine("Архитектура ОС: {0}", dataToPrint.architecture);
-			Console.WriteLine("Описание ОС: {0}", dataToPrint.description);
+			Console.WriteLine("Архитектура ОС: {0}", dataToPrint.Architecture);
+			Console.WriteLine("Описание ОС: {0}", dataToPrint.Description);
 		}
 		// Вывод информации о дисках.
 		public static void Print(List<Disk> dataToPrint)
 		{
 			foreach (var item in dataToPrint)
 			{
-				Console.WriteLine("Модель: {0}", item.model);
-				Console.WriteLine("Том: {0}", item.label);
-				Console.WriteLine("Тип: {0}", item.type);
-				Console.WriteLine("Формат: {0}", item.driveFormat);
-				Console.WriteLine("Всего места: {0} Гб", item.totalSize);
-				Console.WriteLine("Свободное место: {0} Гб", item.totalFreeSpace);
-				Console.WriteLine("Занято места: {0} Гб", item.usedSpace);
-				Console.WriteLine("Имя экземпляра: {0}", item.instanceName);
-				Console.WriteLine("Температура: {0} °С", item.temperature);
+				Console.WriteLine("Модель: {0}", item.Model);
+				Console.WriteLine("Том: {0}", item.Label);
+				Console.WriteLine("Тип: {0}", item.Type);
+				Console.WriteLine("Формат: {0}", item.DriveFormat);
+				Console.WriteLine("Всего места: {0} Гб", item.TotalSize);
+				Console.WriteLine("Свободное место: {0} Гб", item.TotalFreeSpace);
+				Console.WriteLine("Занято места: {0} Гб", item.UsedSpace);
+				Console.WriteLine("Имя экземпляра: {0}", item.InstanceName);
+				Console.WriteLine("Температура: {0} °С", item.Temperature);
 				Console.WriteLine();
 			}
 		}
@@ -40,30 +40,30 @@ namespace dotnetCoreConsole
 			Console.WriteLine("Количество сетевых интерфейсов: {0}", dataToPrint.Count);
 			foreach (var item in dataToPrint)
 			{
-				Console.WriteLine("Интерфейс: {0}, тип: {1}", item.name, item.type);
-				Console.WriteLine("Описание: {0}", item.description);
-				if (item.type == NetworkInterfaceType.Loopback)
+				Console.WriteLine("Интерфейс: {0}, тип: {1}", item.Name, item.Type);
+				Console.WriteLine("Описание: {0}", item.Description);
+				if (item.Type == NetworkInterfaceType.Loopback)
 					continue;
-				if (item.dns != null)
+				if (item.DNS != null)
 				{
 					Console.WriteLine("DNS-адреса:");
-					foreach (var dnsInfo in item.dns)
+					foreach (var dnsInfo in item.DNS)
 					{
 						Console.WriteLine("\t{0}, IPv4: {1}", dnsInfo.Item1, dnsInfo.Item2);
 					}
 				}
-				if (item.gateway != null)
+				if (item.Gateway != null)
 				{
 					Console.WriteLine("Адреса шлюза:");
-					foreach (var gtwInfo in item.gateway)
+					foreach (var gtwInfo in item.Gateway)
 					{
 						Console.WriteLine("\t{0}", gtwInfo);
 					}
 				}
-				if (item.unicast != null)
+				if (item.Unicast != null)
 				{
 					Console.WriteLine("Маски подсетей:");
-					foreach (var uniInfo in item.unicast)
+					foreach (var uniInfo in item.Unicast)
 					{
 						Console.WriteLine("\t{0}, адрес: {1}", uniInfo.Item1, uniInfo.Item2);
 					}
@@ -76,7 +76,7 @@ namespace dotnetCoreConsole
 		{
 			foreach (var item in dataToPrint)
 			{
-				Console.WriteLine("Имя: {0},\nID: {1}", item.name, item.deviceID);
+				Console.WriteLine("Имя: {0},\nID: {1}", item.Name, item.DeviceID);
 				Console.WriteLine();
 			}
 
@@ -84,19 +84,19 @@ namespace dotnetCoreConsole
 		// Вывод информации о процессоре.
 		public static void Print(CentralProcessorUnit dataToPrint)
 		{
-			Console.WriteLine("Модель процессора:\t{0}", dataToPrint.name);
-			Console.WriteLine("Количество ядер:\t{0}", dataToPrint.numberOfCores);
-			Console.WriteLine("Количество потоков:\t{0}", dataToPrint.numberOfLogicalProcessors);
-			Console.WriteLine("Текущая частота:\t{0} МГц", dataToPrint.currentClockSpeed);
-			Console.WriteLine("Загрузка процессора:\t{0}%", dataToPrint.loadPercentage);
-			Console.WriteLine("Температура процессора:\t{0} °С", dataToPrint.temperature);
+			Console.WriteLine("Модель процессора:\t{0}", dataToPrint.Name);
+			Console.WriteLine("Количество ядер:\t{0}", dataToPrint.NumberOfCores);
+			Console.WriteLine("Количество потоков:\t{0}", dataToPrint.NumberOfLogicalProcessors);
+			Console.WriteLine("Текущая частота:\t{0} МГц", dataToPrint.CurrentClockSpeed);
+			Console.WriteLine("Загрузка процессора:\t{0}%", dataToPrint.LoadPercentage);
+			Console.WriteLine("Температура процессора:\t{0} °С", dataToPrint.Temperature);
 		}
 		// Вывод информации об оперативной памяти.
 		public static void Print(Memory dataToPrint)
 		{
-			Console.WriteLine("Всего оперативной памяти: {0} МБ", dataToPrint.total);
-			Console.WriteLine("Доступно: {0} МБ", dataToPrint.free);
-			Console.WriteLine("Занято: {0} МБ", dataToPrint.used);
+			Console.WriteLine("Всего оперативной памяти: {0} МБ", dataToPrint.Total);
+			Console.WriteLine("Доступно: {0} МБ", dataToPrint.Free);
+			Console.WriteLine("Занято: {0} МБ", dataToPrint.Used);
 		}
 	}
 }

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using System.Collections.Generic;
+using System.Text.Json;
 
 namespace dotnetCoreConsole
 {
@@ -10,33 +10,34 @@ namespace dotnetCoreConsole
         static void Main(string[] args)
         {
             SystemInformation mySystem = new SystemInformation(DefinePlatform());
-            try
-            {
-				Console.WriteLine("Количество процессов: {0}", GetNumberOfProcesses());
 
-				Console.WriteLine("\n------ Информация об ОС ------\n");
-				Print(GetOSInfo());
+			//var options = new JsonSerializerOptions
+			//{
+			//    WriteIndented = true
+			//};
+			//string InfoToJSON = JsonSerializer.Serialize(GetNumberOfProcesses(), options);
+			//Console.WriteLine(InfoToJSON);
 
-				Console.WriteLine("\n------ Сетевые интерфейсы ------\n");
-				Print(GetNetworkInterfacesInfo());
+			Console.WriteLine("Количество процессов: {0}", GetNumberOfProcesses());
 
-				Console.WriteLine("\n------ Подключенные USB ------\n");
-				Print(mySystem.GetUSBPortsInfo());
+			Console.WriteLine("\n------ Информация об ОС ------\n");
+			Print(GetOSInfo());
 
-				Console.WriteLine("\n------ Информация о процессоре ------\n");
-				Print(mySystem.GetCPUInfo());
+			Console.WriteLine("\n------ Сетевые интерфейсы ------\n");
+			Print(GetNetworkInterfacesInfo());
 
-				Console.WriteLine("\n------ Информация об оперативной памяти ------\n");
-				Print(mySystem.GetSystemMemoryInfo());
+			Console.WriteLine("\n------ Подключенные USB ------\n");
+			Print(mySystem.GetUSBPortsInfo());
 
-				Console.WriteLine("\n------ Информация о дисках ------\n");
-				Print(mySystem.GetDiskInfo());
-			}
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-        }
+			Console.WriteLine("\n------ Информация о процессоре ------\n");
+			Print(mySystem.GetCPUInfo());
+
+			Console.WriteLine("\n------ Информация об оперативной памяти ------\n");
+			Print(mySystem.GetSystemMemoryInfo());
+
+			Console.WriteLine("\n------ Информация о дисках ------\n");
+			Print(mySystem.GetDiskInfo());
+		}
         static IOperatingSystemSpecial DefinePlatform()
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
