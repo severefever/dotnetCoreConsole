@@ -9,6 +9,10 @@ using System.Collections.Generic;
 
 namespace dotnetCoreConsole
 {
+    public struct Processes
+	{
+        public int NumberOfProcesses { get; set; }
+	}
     public struct Disk
     {
         public string Model { get; set; }
@@ -104,10 +108,11 @@ namespace dotnetCoreConsole
             operatingSystem.Architecture = RuntimeInformation.OSArchitecture.ToString();
             return operatingSystem;
         }
-        public static int GetNumberOfProcesses()
+        public static Processes GetNumberOfProcesses()
         {
-            int NumberOfProcesses = Process.GetProcesses().Length;
-            return NumberOfProcesses;
+            Processes procs = new Processes();
+            procs.NumberOfProcesses = Process.GetProcesses().Length;
+            return procs;
         }
         public static List<NetInts> GetNetworkInterfacesInfo()
         {
@@ -201,7 +206,7 @@ namespace dotnetCoreConsole
             ManagementObjectSearcher objOSDetails = new ManagementObjectSearcher(sq);
             foreach (ManagementObject mo in objOSDetails.Get())
             {
-                cpu.Name = mo["Name"].ToString();
+                cpu.Name = mo["Name"].ToString().Trim();
                 cpu.NumberOfCores = Int32.Parse(mo["NumberOfCores"].ToString());
                 cpu.NumberOfLogicalProcessors = Int32.Parse(mo["NumberOfLogicalProcessors"].ToString());
                 cpu.CurrentClockSpeed = Double.Parse(mo["CurrentClockSpeed"].ToString());
@@ -418,66 +423,30 @@ namespace dotnetCoreConsole
         {
             var data = SystemInformation.ProcessExecution("bash", "./scripts/drivesinfo.sh");
             var disks = new List<Disk>();
-            string[] driveInfo;
-            var tempsInfo = GetDiskTemperature();
-            foreach (var d in data)
+			string[] driveInfo;
+			foreach (var d in data)
 			{
-                Disk disk = new Disk();
-                driveInfo = d.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-                try
+				Disk disk = new Disk();
+				driveInfo = d.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+				try
 				{
-                    disk.Label = driveInfo[0];
-                    disk.Type = driveInfo[1];
-                    disk.DriveFormat = driveInfo[2];
-                    disk.TotalFreeSpace = Math.Round(Double.Parse(driveInfo[3]) / 1024.0, 2);
-                    disk.TotalSize = Math.Round(Double.Parse(driveInfo[4]) / 1024.0, 2);
-                    disk.UsedSpace = Math.Round(Double.Parse(driveInfo[5]) / 1024.0, 2);
-                    disk.InstanceName = driveInfo[6];
+					disk.Label = driveInfo[0];
+					disk.Type = driveInfo[1];
+					disk.DriveFormat = driveInfo[2];
+					disk.TotalFreeSpace = Math.Round(Double.Parse(driveInfo[3]) / 1024.0, 2);
+					disk.TotalSize = Math.Round(Double.Parse(driveInfo[4]) / 1024.0, 2);
+					disk.UsedSpace = Math.Round(Double.Parse(driveInfo[5]) / 1024.0, 2);
+					disk.InstanceName = driveInfo[6];
+                    disk.Model = driveInfo[7];
+                    disk.Temperature = Double.Parse(driveInfo[8]);
 				}
-                catch (Exception e)
+				catch (Exception e)
 				{
-                    Console.WriteLine("Ошибка получения данных о дисках: {0}", e);
+					Console.WriteLine("Ошибка получения данных о дисках: {0}", e);
 				}
-                foreach (var temp in tempsInfo)
-				{
-                    if (disk.InstanceName == temp.InstanceName)
-					{
-                        disk.Model = temp.Model;
-                        disk.Temperature = temp.Temperature;
-					}
-				}
-                disks.Add(disk);
+				disks.Add(disk);
 			}
-            return disks;
+			return disks;
         }
-        List<DiskTemp> GetDiskTemperature()
-		{
-            var disksTemp = new List<DiskTemp>();
-            var data = SystemInformation.ProcessExecution("bash", "./scripts/drivestemp.sh");
-            string[] driveTemp;
-            foreach (var d in data)
-            {
-                DiskTemp temp = new DiskTemp();
-                driveTemp = d.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-                try
-                {
-                    var culture = System.Globalization.CultureInfo.CurrentCulture;
-                    if (culture.ToString().Equals("ru-RU"))
-                    {
-                        driveTemp[1] = driveTemp[1].Replace('.', ',');
-                    }
-                    temp.Model = driveTemp[0];
-                    temp.Temperature = Double.Parse(driveTemp[1]);
-                    temp.InstanceName = driveTemp[2];
-                }
-                catch (Exception e)
-                {
-                    temp.Temperature = 0;
-                    Console.WriteLine("Ошибка получения температур дисков: {0}", e);
-                }
-                disksTemp.Add(temp);
-            }
-            return disksTemp;
-		}
     }
 }

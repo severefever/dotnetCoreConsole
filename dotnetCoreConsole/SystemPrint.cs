@@ -6,6 +6,11 @@ namespace dotnetCoreConsole
 {
 	public partial class SystemInformation
 	{
+		// Вывод количества процессов системы.
+		public static void Print(Processes dataToPrint)
+		{
+			Console.WriteLine("Количество процессов: {0}", dataToPrint.NumberOfProcesses);
+		}
 		// Вывод информации об Операционной Системе.
 		public static void Print(OperatingSystem dataToPrint)
 		{
