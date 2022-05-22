@@ -9,62 +9,6 @@ using System.Collections.Generic;
 
 namespace dotnetCoreConsole
 {
-    public struct Processes
-	{
-        public int NumberOfProcesses { get; set; }
-	}
-    public struct Disk
-    {
-        public string Model { get; set; }
-        public string Label { get; set; }
-        public string Type { get; set; }
-        public string DriveFormat { get; set; }
-        public double TotalFreeSpace { get; set; }
-        public double TotalSize { get; set; }
-        public double UsedSpace { get; set; }
-        public string InstanceName { get; set; }
-        public double Temperature { get; set; }
-    }
-    public struct DiskTemp
-	{
-        public string Model { get; set; }
-        public string InstanceName { get; set; }
-        public double Temperature { get; set; }
-    }
-    public struct OperatingSystem
-    {
-        public string Description { get; set; }
-        public string Architecture { get; set; }
-    }
-    public struct NetInts
-    {
-        public string Name { get; set; }
-        public NetworkInterfaceType Type { get; set; }
-        public string Description { get; set; }
-        public List<(string, string)> DNS { get; set; }
-        public List<string> Gateway { get; set; }
-        public List<(string, string)> Unicast { get; set; }
-    }
-    public struct USB
-    {
-        public string Name { get; set; }
-        public string DeviceID { get; set; }
-    }
-    public struct Memory
-	{
-        public double Total { get; set; }
-        public double Used { get; set; }
-        public double Free { get; set; }
-    }
-    public struct CentralProcessorUnit
-	{
-        public string Name { get; set; }
-        public int NumberOfCores { get; set; }
-        public int NumberOfLogicalProcessors { get; set; }
-        public double CurrentClockSpeed { get; set; }
-        public double LoadPercentage { get; set; }
-        public double Temperature { get; set; }
-    }
     public interface IOperatingSystemSpecial
     {
         List<USB> USBPortsInfo();
@@ -82,39 +26,45 @@ namespace dotnetCoreConsole
         }
         public List<USB> GetUSBPortsInfo()
         {
-            return _specialOS.USBPortsInfo();
+            USBs = _specialOS.USBPortsInfo();
+            return USBs;
         }
         public Memory GetSystemMemoryInfo()
         {
-            return _specialOS.MemoryInfo();
+            RAM = _specialOS.MemoryInfo();
+            return RAM;
         }
         public CentralProcessorUnit GetCPUInfo()
         {
-            return _specialOS.CPUInfo();
+            CPU = _specialOS.CPUInfo();
+            return CPU;
         }
         public List<Disk> GetDiskInfo()
         {
-            return _specialOS.DiskInfo();
+            Drives = _specialOS.DiskInfo();
+            return Drives;
         }
 
         //
         // Кроссплатформенные методы
         //
 
-        public static OperatingSystem GetOSInfo()
+        public OperatingSystem GetOSInfo()
         {
-            OperatingSystem operatingSystem = new OperatingSystem();
-            operatingSystem.Description = RuntimeInformation.OSDescription;
-            operatingSystem.Architecture = RuntimeInformation.OSArchitecture.ToString();
-            return operatingSystem;
+            OperatingSystem _operatingSystem = new OperatingSystem();
+            _operatingSystem.Description = RuntimeInformation.OSDescription;
+            _operatingSystem.Architecture = RuntimeInformation.OSArchitecture.ToString();
+            OS = _operatingSystem;
+            return OS;
         }
-        public static Processes GetNumberOfProcesses()
+        public Processes GetNumberOfProcesses()
         {
-            Processes procs = new Processes();
-            procs.NumberOfProcesses = Process.GetProcesses().Length;
-            return procs;
+            Processes _procs = new Processes();
+            _procs.NumberOfProcesses = Process.GetProcesses().Length;
+            Procs = _procs;
+            return Procs;
         }
-        public static List<NetInts> GetNetworkInterfacesInfo()
+        public List<NetInts> GetNetworkInterfacesInfo()
         {
             var adaptersList = new List<NetInts>();
             NetworkInterface[] adapters = NetworkInterface.GetAllNetworkInterfaces();
@@ -160,7 +110,8 @@ namespace dotnetCoreConsole
                 }
                 adaptersList.Add(adapterInfo);
             }
-            return adaptersList;
+            NetAdapters = adaptersList;
+            return NetAdapters;
         }
     }
     class WindowsSystemInfo : IOperatingSystemSpecial

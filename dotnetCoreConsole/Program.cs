@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using Newtonsoft.Json;
+using System.Threading.Tasks;
 
 namespace dotnetCoreConsole
 {
@@ -10,7 +11,6 @@ namespace dotnetCoreConsole
 		static void Main(string[] args)
 		{
 			SystemInformation mySystem = new SystemInformation(DefinePlatform());
-            SystemData dataToJson = new SystemData(mySystem);
 
             bool isStop = false;
             while (!isStop)
@@ -23,87 +23,151 @@ namespace dotnetCoreConsole
                 Console.WriteLine("6.  Вывести информацию о процессоре.");
                 Console.WriteLine("7.  Вывести информацию об оперативной памяти.");
                 Console.WriteLine("8.  Вывести информацию о дисках.");
-                Console.WriteLine("9.  Сериализовать информацию о системе, полученную ранее");
+                Console.WriteLine("9.  Сериализовать информацию о системе, полученную ранее.");
                 Console.WriteLine("10. Сериализовать всю информацию о системе.");
                 Console.WriteLine("11. Очистить экран.");
                 Console.WriteLine("12. Завершить программу.");
                 Console.Write("Выберите действие (напишите номер): ");
                 int choice = Int32.Parse(Console.ReadLine());
+                string yesOrNo;
                 switch (choice)
                 {
                     case 1:
-						Console.WriteLine("\n------ Количество процессов ------\n");
-						Print(GetNumberOfProcesses());
-						Console.WriteLine("\n------ Информация об ОС ------\n");
-						Print(GetOSInfo());
-						Console.WriteLine("\n------ Сетевые интерфейсы ------\n");
-						Print(GetNetworkInterfacesInfo());
-						Console.WriteLine("\n------ Подключенные USB ------\n");
-						Print(mySystem.GetUSBPortsInfo());
-						Console.WriteLine("\n------ Информация о процессоре ------\n");
-						Print(mySystem.GetCPUInfo());
-						Console.WriteLine("\n------ Информация об оперативной памяти ------\n");
-						Print(mySystem.GetSystemMemoryInfo());
-						Console.WriteLine("\n------ Информация о дисках ------\n");
-						Print(mySystem.GetDiskInfo());
-						break;
+						{
+                            Parallel.Invoke(
+                                () =>
+                                {
+                                    Print(mySystem.GetNumberOfProcesses());
+                                },
+                                () =>
+                                {
+                                    Print(mySystem.GetOSInfo());
+                                },
+                                () =>
+                                {
+                                    Print(mySystem.GetNetworkInterfacesInfo());
+                                },
+                                () =>
+                                {
+                                    Print(mySystem.GetUSBPortsInfo());
+                                },
+                                () =>
+                                {
+                                    Print(mySystem.GetCPUInfo());
+                                },
+                                () =>
+                                {
+                                    Print(mySystem.GetSystemMemoryInfo());
+                                },
+                                () =>
+                                {
+                                    Print(mySystem.GetDiskInfo());
+                                }
+                                );
+                            break;
+                        }
                     case 2:
-						Console.WriteLine("\n------ Количество процессов ------\n");
-						Print(GetNumberOfProcesses());
-						break;
+						{
+                            Print(mySystem.GetNumberOfProcesses());
+                            break;
+                        }
                     case 3:
-						Console.WriteLine("\n------ Информация об ОС ------\n");
-						Print(GetOSInfo());
-						break;
+						{
+                            Print(mySystem.GetOSInfo());
+                            break;
+                        }
                     case 4:
-						Console.WriteLine("\n------ Сетевые интерфейсы ------\n");
-						Print(GetNetworkInterfacesInfo());
-						break;
+						{
+                            Print(mySystem.GetNetworkInterfacesInfo());
+                            break;
+                        }
                     case 5:
-						Console.WriteLine("\n------ Подключенные USB ------\n");
-						Print(mySystem.GetUSBPortsInfo());
-						break;
+						{
+                            Print(mySystem.GetUSBPortsInfo());
+                            break;
+                        }
                     case 6:
-						Console.WriteLine("\n------ Информация о процессоре ------\n");
-						Print(mySystem.GetCPUInfo());
-						break;
+						{
+                            Print(mySystem.GetCPUInfo());
+                            break;
+                        }
                     case 7:
-						Console.WriteLine("\n------ Информация об оперативной памяти ------\n");
-						Print(mySystem.GetSystemMemoryInfo());
-						break;
+						{
+                            Print(mySystem.GetSystemMemoryInfo());
+                            break;
+                        }
                     case 8:
-						Console.WriteLine("\n------ Информация о дисках ------\n");
-						Print(mySystem.GetDiskInfo());
-						break;
+						{
+                            Print(mySystem.GetDiskInfo());
+                            break;
+                        }
                     case 9:
-
-                        break;
+						{
+                            while (true)
+							{
+                                Console.Write("Вывести в удобном для чтения формате? [y/n]: ");
+                                yesOrNo = Console.ReadLine();
+                                if (yesOrNo.ToLower().Equals("y") || yesOrNo.ToLower().Equals("yes"))
+                                {
+                                    JsonSerializerSettings settings = new JsonSerializerSettings();
+                                    settings.Formatting = Formatting.Indented;
+                                    Print(mySystem.SerializeData(mySystem, settings));
+                                }
+                                else if (yesOrNo.ToLower().Equals("n") || yesOrNo.ToLower().Equals("no"))
+                                {
+                                    Print(mySystem.SerializeData(mySystem));
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Неверно введен ответ. Попробуйте еще раз.");
+                                    continue;
+                                }
+                                break;
+                            }
+                            Console.WriteLine();
+                            break;
+                        }
                     case 10:
-                        JsonSerializerSettings settings = new JsonSerializerSettings();
-                        settings.Formatting = Formatting.Indented;
-                        string InfoToJSON = JsonConvert.SerializeObject(dataToJson, settings);
-                        Console.WriteLine(InfoToJSON);
-                        break;
+						{
+                            while (true)
+							{
+                                Console.Write("Вывести в удобном для чтения формате? [y/n]: ");
+                                yesOrNo = Console.ReadLine();
+                                if (yesOrNo.ToLower().Equals("y") || yesOrNo.ToLower().Equals("yes"))
+                                {
+                                    JsonSerializerSettings settings = new JsonSerializerSettings();
+                                    settings.Formatting = Formatting.Indented;
+                                    Print(mySystem.SerializeAllData(mySystem, settings));
+                                }
+                                else if (yesOrNo.ToLower().Equals("n") || yesOrNo.ToLower().Equals("no"))
+                                {
+                                    Print(mySystem.SerializeAllData(mySystem));
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Неверно введен ответ. Попробуйте еще раз.");
+                                    continue;
+                                }
+                                break;
+                            }
+                            Console.WriteLine();
+                            break;
+                        }
                     case 11:
-                        Console.Clear();
-                        break;
+						{
+                            Console.Clear();
+                            break;
+                        }
                     case 12:
-                        isStop = true;
-                        break;
+						{
+                            isStop = true;
+                            break;
+                        }
                     default:
                         Console.WriteLine("Неверно введено значение.");
                         break;
                 }
             }
-			//SystemData test = new SystemData();
-			//test = JsonConvert.DeserializeObject<SystemData>(InfoToJSON);
-			//Print(test.USBs);
-			//Print(test.RAM);
-			//Print(test.CPU);
-			//Print(test.Drives);
-			//Print(test.OS);
-			//Print(test.Procs);
-			//Print(test.NetAdapters);
 		}
         static IOperatingSystemSpecial DefinePlatform()
         {

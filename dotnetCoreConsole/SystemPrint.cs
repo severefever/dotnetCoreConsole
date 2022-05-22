@@ -1,107 +1,183 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net.NetworkInformation;
+using System.IO;
 
 namespace dotnetCoreConsole
 {
 	public partial class SystemInformation
 	{
+		// Если TextWriter = null, то вывод будет оформляться в консоль.
 		// Вывод количества процессов системы.
-		public static void Print(Processes dataToPrint)
+		public static void Print(Processes dataToPrint, TextWriter textWriter = null)
 		{
-			Console.WriteLine("Количество процессов: {0}", dataToPrint.NumberOfProcesses);
+			if (textWriter == null)
+			{
+				textWriter = Console.Out;
+			}
+			using (textWriter)
+			{
+				textWriter.WriteLine("Количество процессов: {0}", dataToPrint.NumberOfProcesses);
+				textWriter.WriteLine();
+			}
 		}
 		// Вывод информации об Операционной Системе.
-		public static void Print(OperatingSystem dataToPrint)
+		public static void Print(OperatingSystem dataToPrint, TextWriter textWriter = null)
 		{
-			Console.WriteLine("Архитектура ОС: {0}", dataToPrint.Architecture);
-			Console.WriteLine("Описание ОС: {0}", dataToPrint.Description);
+			if (textWriter == null)
+			{
+				textWriter = Console.Out;
+			}
+			using (textWriter)
+			{
+				textWriter.WriteLine("Архитектура ОС: {0}", dataToPrint.Architecture);
+				textWriter.WriteLine("Описание ОС: {0}", dataToPrint.Description);
+				textWriter.WriteLine();
+			}
 		}
 		// Вывод информации о дисках.
-		public static void Print(List<Disk> dataToPrint)
+		public static void Print(List<Disk> dataToPrint, TextWriter textWriter = null)
 		{
+			if (textWriter == null)
+			{
+				textWriter = Console.Out;
+			}
 			foreach (var item in dataToPrint)
 			{
-				Console.WriteLine("Модель: {0}", item.Model);
-				Console.WriteLine("Том: {0}", item.Label);
-				Console.WriteLine("Тип: {0}", item.Type);
-				Console.WriteLine("Формат: {0}", item.DriveFormat);
-				Console.WriteLine("Всего места: {0} Гб", item.TotalSize);
-				Console.WriteLine("Свободное место: {0} Гб", item.TotalFreeSpace);
-				Console.WriteLine("Занято места: {0} Гб", item.UsedSpace);
-				Console.WriteLine("Имя экземпляра: {0}", item.InstanceName);
-				Console.WriteLine("Температура: {0} °С", item.Temperature);
-				Console.WriteLine();
+				using (textWriter)
+				{
+					textWriter.WriteLine("Модель: {0}", item.Model);
+					textWriter.WriteLine("Том: {0}", item.Label);
+					textWriter.WriteLine("Тип: {0}", item.Type);
+					textWriter.WriteLine("Формат: {0}", item.DriveFormat);
+					textWriter.WriteLine("Всего места: {0} Гб", item.TotalSize);
+					textWriter.WriteLine("Свободное место: {0} Гб", item.TotalFreeSpace);
+					textWriter.WriteLine("Занято места: {0} Гб", item.UsedSpace);
+					textWriter.WriteLine("Имя экземпляра: {0}", item.InstanceName);
+					textWriter.WriteLine("Температура: {0} °С", item.Temperature);
+					textWriter.WriteLine();
+				}
 			}
 		}
 		// Вывод информации о сетевых интерфейсах.
-		public static void Print(List<NetInts> dataToPrint)
+		public static void Print(List<NetInts> dataToPrint, TextWriter textWriter = null)
 		{
+			if (textWriter == null)
+			{
+				textWriter = Console.Out;
+			}
 			if (dataToPrint == null)
 			{
-				Console.WriteLine("Сетевых интерфейсов не найдено");
+				textWriter.WriteLine("Сетевых интерфейсов не найдено");
 				return;
 			}
-			Console.WriteLine("Количество сетевых интерфейсов: {0}", dataToPrint.Count);
+			textWriter.WriteLine("Количество сетевых интерфейсов: {0}", dataToPrint.Count);
 			foreach (var item in dataToPrint)
 			{
-				Console.WriteLine("Интерфейс: {0}, тип: {1}", item.Name, item.Type);
-				Console.WriteLine("Описание: {0}", item.Description);
+				textWriter.WriteLine("Интерфейс: {0}, тип: {1}", item.Name, item.Type);
+				textWriter.WriteLine("Описание: {0}", item.Description);
 				if (item.Type == NetworkInterfaceType.Loopback)
 					continue;
 				if (item.DNS != null)
 				{
-					Console.WriteLine("DNS-адреса:");
+					textWriter.WriteLine("DNS-адреса:");
 					foreach (var dnsInfo in item.DNS)
 					{
-						Console.WriteLine("\t{0}, IPv4: {1}", dnsInfo.Item1, dnsInfo.Item2);
+						textWriter.WriteLine("\t{0}, IPv4: {1}", dnsInfo.Item1, dnsInfo.Item2);
 					}
 				}
 				if (item.Gateway != null)
 				{
-					Console.WriteLine("Адреса шлюза:");
+					textWriter.WriteLine("Адреса шлюза:");
 					foreach (var gtwInfo in item.Gateway)
 					{
-						Console.WriteLine("\t{0}", gtwInfo);
+						textWriter.WriteLine("\t{0}", gtwInfo);
 					}
 				}
 				if (item.Unicast != null)
 				{
-					Console.WriteLine("Маски подсетей:");
+					textWriter.WriteLine("Маски подсетей:");
 					foreach (var uniInfo in item.Unicast)
 					{
-						Console.WriteLine("\t{0}, адрес: {1}", uniInfo.Item1, uniInfo.Item2);
+						textWriter.WriteLine("\t{0}, адрес: {1}", uniInfo.Item1, uniInfo.Item2);
 					}
 				}
-				Console.WriteLine();
+				textWriter.WriteLine();
+			}
+			try
+			{
+				textWriter.Dispose();
+				textWriter.Close();
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex.ToString());
 			}
 		}
 		// Вывод информации о подключенных USB.
-		public static void Print(List<USB> dataToPrint)
+		public static void Print(List<USB> dataToPrint, TextWriter textWriter = null)
 		{
+			if (textWriter == null)
+			{
+				textWriter = Console.Out;
+			}
 			foreach (var item in dataToPrint)
 			{
-				Console.WriteLine("Имя: {0},\nID: {1}", item.Name, item.DeviceID);
-				Console.WriteLine();
+				using (textWriter)
+				{
+					textWriter.WriteLine("Имя: {0},\nID: {1}", item.Name, item.DeviceID);
+					textWriter.WriteLine();
+				}
 			}
 
 		}
 		// Вывод информации о процессоре.
-		public static void Print(CentralProcessorUnit dataToPrint)
+		public static void Print(CentralProcessorUnit dataToPrint, TextWriter textWriter = null)
 		{
-			Console.WriteLine("Модель процессора:\t{0}", dataToPrint.Name);
-			Console.WriteLine("Количество ядер:\t{0}", dataToPrint.NumberOfCores);
-			Console.WriteLine("Количество потоков:\t{0}", dataToPrint.NumberOfLogicalProcessors);
-			Console.WriteLine("Текущая частота:\t{0} МГц", dataToPrint.CurrentClockSpeed);
-			Console.WriteLine("Загрузка процессора:\t{0}%", dataToPrint.LoadPercentage);
-			Console.WriteLine("Температура процессора:\t{0} °С", dataToPrint.Temperature);
+			if (textWriter == null)
+			{
+				textWriter = Console.Out;
+			}
+			using (textWriter)
+			{
+				textWriter.WriteLine("Модель процессора:\t{0}", dataToPrint.Name);
+				textWriter.WriteLine("Количество ядер:\t{0}", dataToPrint.NumberOfCores);
+				textWriter.WriteLine("Количество потоков:\t{0}", dataToPrint.NumberOfLogicalProcessors);
+				textWriter.WriteLine("Текущая частота:\t{0} МГц", dataToPrint.CurrentClockSpeed);
+				textWriter.WriteLine("Загрузка процессора:\t{0}%", dataToPrint.LoadPercentage);
+				textWriter.WriteLine("Температура процессора:\t{0} °С", dataToPrint.Temperature);
+				textWriter.WriteLine();
+			}
 		}
 		// Вывод информации об оперативной памяти.
-		public static void Print(Memory dataToPrint)
+		public static void Print(Memory dataToPrint, TextWriter textWriter = null)
 		{
-			Console.WriteLine("Всего оперативной памяти: {0} МБ", dataToPrint.Total);
-			Console.WriteLine("Доступно: {0} МБ", dataToPrint.Free);
-			Console.WriteLine("Занято: {0} МБ", dataToPrint.Used);
+			if (textWriter == null)
+			{
+				textWriter = Console.Out;
+			}
+			using (textWriter)
+			{
+				textWriter.WriteLine("Всего оперативной памяти: {0} МБ", dataToPrint.Total);
+				textWriter.WriteLine("Доступно: {0} МБ", dataToPrint.Free);
+				textWriter.WriteLine("Занято: {0} МБ", dataToPrint.Used);
+				textWriter.WriteLine();
+			}
+		}
+		//
+		// Вывод сериализованной строки.
+		//
+		public static void Print (string json, TextWriter textWriter = null)
+		{
+			if (textWriter == null)
+			{
+				textWriter = Console.Out;
+			}
+			using (textWriter)
+			{
+				textWriter.WriteLine(json);
+				textWriter.WriteLine();
+			}
 		}
 	}
 }
