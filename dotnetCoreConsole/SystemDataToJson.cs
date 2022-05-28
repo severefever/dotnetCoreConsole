@@ -15,11 +15,11 @@ namespace dotnetCoreConsole
 		public Processes Procs { get; set; }
 		public List<NetInts> NetAdapters { get; set; }
 
-		public string SerializeData(SystemInformation systemToSerialize)
+		public string SerializeData()
 		{
 			try
 			{
-				return JsonConvert.SerializeObject(systemToSerialize);
+				return JsonConvert.SerializeObject(this);
 			}
 			catch (Exception e)
 			{
@@ -27,7 +27,7 @@ namespace dotnetCoreConsole
 				return null;
 			}
 		}
-		public string SerializeAllData(SystemInformation systemToSerialize)
+		public string SerializeAllData()
 		{
 			Parallel.Invoke(
 				() => {	Procs = GetNumberOfProcesses();	},
@@ -38,13 +38,13 @@ namespace dotnetCoreConsole
 				() => { RAM = GetSystemMemoryInfo(); },
 				() => { Drives = GetDiskInfo(); }
 				);
-			return SerializeData(systemToSerialize);
+			return SerializeData();
 		}
-		public string SerializeData(SystemInformation systemToSerialize, JsonSerializerSettings settings)
+		public string SerializeData(JsonSerializerSettings settings)
 		{
 			try
 			{
-				return JsonConvert.SerializeObject(systemToSerialize, settings);
+				return JsonConvert.SerializeObject(this, settings);
 			}
 			catch (Exception e)
 			{
@@ -52,7 +52,7 @@ namespace dotnetCoreConsole
 				return null;
 			}
 		}
-		public string SerializeAllData(SystemInformation systemToSerialize, JsonSerializerSettings settings)
+		public string SerializeAllData(JsonSerializerSettings settings)
 		{
 			Parallel.Invoke(
 				() => { Procs = GetNumberOfProcesses(); },
@@ -63,7 +63,7 @@ namespace dotnetCoreConsole
 				() => { RAM = GetSystemMemoryInfo(); },
 				() => { Drives = GetDiskInfo(); }
 				);
-			return SerializeData(systemToSerialize, settings);
+			return SerializeData(settings);
 		}
 		public SystemInformation DeserializeData(string jsonToDeserialize)
 		{

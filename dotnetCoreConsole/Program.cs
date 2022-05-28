@@ -111,11 +111,11 @@ namespace dotnetCoreConsole
                                 {
                                     JsonSerializerSettings settings = new JsonSerializerSettings();
                                     settings.Formatting = Formatting.Indented;
-                                    Print(mySystem.SerializeData(mySystem, settings));
+                                    Print(mySystem.SerializeData(settings));
                                 }
                                 else if (yesOrNo.ToLower().Equals("n") || yesOrNo.ToLower().Equals("no"))
                                 {
-                                    Print(mySystem.SerializeData(mySystem));
+                                    Print(mySystem.SerializeData());
                                 }
                                 else
                                 {
@@ -137,11 +137,11 @@ namespace dotnetCoreConsole
                                 {
                                     JsonSerializerSettings settings = new JsonSerializerSettings();
                                     settings.Formatting = Formatting.Indented;
-                                    Print(mySystem.SerializeAllData(mySystem, settings));
+                                    Print(mySystem.SerializeAllData(settings));
                                 }
                                 else if (yesOrNo.ToLower().Equals("n") || yesOrNo.ToLower().Equals("no"))
                                 {
-                                    Print(mySystem.SerializeAllData(mySystem));
+                                    Print(mySystem.SerializeAllData());
                                 }
                                 else
                                 {
